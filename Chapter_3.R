@@ -250,4 +250,116 @@ flights %>%
 
 #The arr_delay column has been selected out of the data frame
 
-         
+
+##3.5 Groups
+
+#3.5.1 group_by()
+
+#group_by() divides the dataset into groups meaningful for analysis
+
+flights %>%
+  group_by(month)
+
+#this doesn't change the data but creates a grouped feature (aka class)
+#subsequent operations will work "by month" in this case
+
+#3.5.2 summarize()
+
+#summarize() reduces the data frame to have a single row for each group created by group_by()
+
+flights %>%
+  group_by(month) %>%
+  summarize(
+    avg_delay = mean(dep_delay, na.rm = TRUE)
+  )
+
+flights %>%
+  group_by(month) %>%
+  summarize(
+    avg_delay = mean(dep_delay, na.rm = TRUE),
+    n = n()
+  )
+#n() displays the number of rows in each group
+#so the output has the average delay by month and the total number
+#of flights in each month
+
+#3.5.3 the slice_ functions
+
+#extracting specific rows within a group created from group_by()
+
+# slice_head(n = 1) takes the first row from each group
+# slice_tail(n = 1) takes the last row from each group
+# slice_min(x, n = 1) takes the row with the smallest value of column x
+# slice_max(x, n = 1) takes the row with the largest value of column x
+# slice_sample(n = 1) takes one random row
+
+#prop = 0.1 can be used to select 10% of rows in the group instead of n =
+
+
+flights %>%
+  group_by(dest) %>%
+    slice_max(arr_delay,n = 1, with_ties = FALSE) %>%
+  relocate(dest,arr_delay)
+#if you don't specify with_ties = FALSE in _slice then ties are included
+
+#max1 <- flights %>%
+#  group_by(dest) %>%
+#  summarize(
+#    max(arr_delay, na.rm = TRUE)
+#  )
+
+#3.5.4 Grouping by multiple variables
+
+daily <- flights %>%
+  group_by(year, month, day)
+daily
+
+#3.5.5 ungrouping
+
+#you can remove a grouping without using summarize() using ungroup()
+
+daily %>%
+  ungroup()
+daily
+
+#attempting to summarize an ungrouped data frame causes all rows in an ungrouped data frame counted as belonging to one group
+
+daily %>%
+  ungroup() %>%
+  summarize(
+    avg_delay = mean(dep_delay, na.rm = TRUE), 
+    flights = n()
+  )
+
+#3.5.6 .by
+
+#the .by argument can group within a single argument and you don't need to use ungroup() when finished using the group
+
+flights %>%
+  summarize(
+    delay = mean(dep_delay, na.rm = TRUE),
+    n = n(),
+    .by = month
+  ) %>%
+  arrange(month)
+
+flights %>%
+  summarize(
+    delay = mean(dep_delay, na.rm = TRUE),
+    n = n(),
+    .by = c(origin,dest)
+  ) %>%
+  arrange(origin,dest)
+#grouping by multiple variables using .by = c()
+
+##3.5.7 exercises
+
+#1
+
+problem1 <- flights %>%
+  group_by(carrier) %>%
+  summarize(
+    mean_carr_delay = mean(arr_delay, na.rm = TRUE),
+    n = n() 
+  ) %>%
+  arrange(desc(mean_carr_delay))
