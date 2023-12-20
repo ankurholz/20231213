@@ -363,3 +363,23 @@ problem1 <- flights %>%
     n = n() 
   ) %>%
   arrange(desc(mean_carr_delay))
+
+#2
+
+problem2 <- flights %>%
+  group_by(dest) %>%
+  slice_max(dep_delay, n = 1) %>%
+  select(dest,dep_delay) %>%
+  arrange(dest)
+
+#3
+
+#ggplot(flights, aes(x = sched_dep_time, y = dep_delay)) +
+#  geom_smooth(na.rm = TRUE, aes(x = sched_dep_time, y = dep_delay))
+#above doesn't actually work because the sched_dep_time is not a useful numeric value
+
+flights %>%
+  group_by(hour) %>%
+  summarize(avg_dep_delay = mean(dep_delay, na.rm = TRUE)) %>%
+  ggplot(aes(x = hour, y = avg_dep_delay)) +
+  geom_smooth()
