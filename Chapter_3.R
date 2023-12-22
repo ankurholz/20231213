@@ -383,3 +383,104 @@ flights %>%
   summarize(avg_dep_delay = mean(dep_delay, na.rm = TRUE)) %>%
   ggplot(aes(x = hour, y = avg_dep_delay)) +
   geom_smooth()
+
+#4
+
+flights %>%
+  group_by(origin) %>%
+  slice_head(n = 1)
+
+#a negative value for n in a slice function just outputs the entire data frame, ignoring the negative value.
+
+#5
+
+
+flights %>%
+  count(origin,dest, sort = TRUE)
+
+#count finds the number of unique occurrences, in this case with a unique origin and destination, and the number of occurrences.
+#sort within count sorts the results by n (number of occurrences)
+
+flights %>%
+  group_by(dest) %>%
+  count()
+
+#6
+
+df <- tibble(
+  x = 1:5,
+  y = c("a", "b", "a", "a", "b"),
+  z = c("K", "K", "L", "L", "K")
+)
+
+#I think this creates a data frame with three columns and 5 rows.
+
+df %>%
+  group_by(y)
+
+#I think this will create two groups.
+
+df %>%
+  arrange(y)
+
+#This will put the data frame in alphanumerical order based on the y column. No groups are created unlike group_by()
+
+df %>%
+  group_by(y) %>%
+  summarize(mean_x = mean(x))
+
+#df will first be separated into two groups based on values in y
+#mean_x will be a 2x2 data frame with the mean of x of each group in y.
+
+df %>%
+  group_by(y, z) %>%
+  summarize(mean_x = mean(x))
+
+#for this grouping, y and z values have to be equivalent. So three groups are created.
+#a data frame that is 3x2 will be generated with the mean of each group output
+
+df %>%
+  group_by(y, z) %>%
+  summarize(mean_x = mean(x), .groups = "drop")
+
+#Perhaps this will just provide a single mean without grouping?
+#It still provided the means of the three previous groups but seems to have ungrouped them afterwards
+
+df %>%
+  group_by(y, z) |>
+  summarize(mean_x = mean(x))
+
+df %>%
+  group_by(y, z) |>
+  mutate(mean_x = mean(x))
+
+#The difference is that mutate() will add the means as a new column in df.
+
+##
+
+###3.6 Case study: aggregates and sample size
+
+install.packages("Lahman")
+
+library(Lahman)
+
+view(Batting)
+
+batters <- Lahman::Batting %>%
+  group_by(playerID) %>%
+  summarize(
+    performance = sum(H, na.rm = TRUE) / sum(AB, na.rm = TRUE),
+    n = sum(AB, na.rm = TRUE)
+  )
+
+batters %>%
+  filter(n > 100) %>%
+  ggplot(aes(x = n, y = performance)) +
+  geom_point(alpha = 0.1) +
+  geom_smooth(se = FALSE)
+
+batters %>%
+  arrange(desc(performance))
+
+#batters who have a very small number of at-bats tend to have the best performance, number of at-bats needs to be considered.
+
