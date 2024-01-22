@@ -69,3 +69,49 @@ table3_p <- table3 %>%
                names_sep = "_",
                values_to = "cases",
                values_drop_na = TRUE)
+
+#5.3.4 Data and variable names in the column headers
+
+table4 <- household
+
+#using the .value sentinel to indicate that the column names in the input contribute to both values and variable names in the output
+
+
+table4_p <- table4 %>%
+  pivot_longer(cols = !family, 
+               names_to = c(".value", "child"),
+               names_sep = "_",
+               values_drop_na = TRUE)
+
+#5.4 widening data
+
+table5 <- cms_patient_experience
+
+#pivot_wider() arguments
+#id_cols = which column or columns have values that uniquely identify each row
+#values_from = which existing columns define the values
+#names_from = the column name
+table5_p <- table5 %>%
+  pivot_wider(
+    id_cols = starts_with("org"),
+    names_from = measure_cd,
+    values_from = prf_rate
+  )
+
+#5.4.1 How pivot_wider() works
+
+bp_2<- tribble(
+  ~id, ~measurement, ~value,
+  "A",        "bp1",    100,
+  "B",        "bp1",    140,
+  "B",        "bp2",    115, 
+  "A",        "bp2",    120,
+  "A",        "bp3",    105
+)
+
+bp_2_p <- bp_2 %>%
+  pivot_wider(
+    id_cols = "id",
+    names_from = "measurement",
+    values_from = "value"
+  )
